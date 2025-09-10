@@ -1,0 +1,8 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "ind_footprints")(type "KiCad")(uri "/Users/norbu/Downloads/Boat_PCB_Parts/IND_3.3uH_10A_14.4mO/ind_footprints.pretty")(options "")(descr ""))
+  (lib (name "TSP565201DDCT")(type "KiCad")(uri "/Users/norbu/Downloads/Boat_PCB_Parts/TSP565201DDCT/footprints.pretty")(options "")(descr ""))
+  (lib (name "Graphics")(type "KiCad")(uri "/Users/norbu/Documents/KiCad/9.0/footprints/Graphics")(options "")(descr ""))
+  (lib (name "footprints")(type "KiCad")(uri "/Users/norbu/Downloads/Boat_PCB_Parts/USB4125-GF-A/footprints.pretty")(options "")(descr ""))
+  (lib (name "USB4125 GF A")(type "KiCad")(uri "/Users/norbu/Downloads/Boat_PCB_Parts/USB4125 GF A")(options "")(descr ""))
+)
