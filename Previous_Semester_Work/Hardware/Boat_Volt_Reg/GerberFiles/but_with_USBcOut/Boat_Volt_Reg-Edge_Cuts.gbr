@@ -1,0 +1,23 @@
+%TF.GenerationSoftware,KiCad,Pcbnew,9.0.0*%
+%TF.CreationDate,2025-03-31T21:25:01-05:00*%
+%TF.ProjectId,Boat_Volt_Reg,426f6174-5f56-46f6-9c74-5f5265672e6b,rev?*%
+%TF.SameCoordinates,Original*%
+%TF.FileFunction,Profile,NP*%
+%FSLAX46Y46*%
+G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
+G04 Created by KiCad (PCBNEW 9.0.0) date 2025-03-31 21:25:01*
+%MOMM*%
+%LPD*%
+G01*
+G04 APERTURE LIST*
+%TA.AperFunction,Profile*%
+%ADD10C,0.050000*%
+%TD*%
+G04 APERTURE END LIST*
+D10*
+X36000000Y-24500000D02*
+X81000000Y-24500000D01*
+X81000000Y-53500000D01*
+X36000000Y-53500000D01*
+X36000000Y-24500000D01*
+M02*
