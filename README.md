@@ -1,3 +1,7 @@
 # autonomous-boat
 ECE 455 Capstone Project
-# this is new line
+
+
+## Project Roles
+Ahmad: Team Lead
+Nicholas: Accountant
