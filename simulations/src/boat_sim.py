@@ -200,6 +200,55 @@ class MotorESC(Subsystem):
         return shaft_W / max(1e-3, self.motor_efficiency * self.esc_efficiency)
 
 
+# Helpers for velocity power functions
+def _available_thrust_now(motor: MotorESC, battery: Battery) -> float:
+    """
+    Estimate current available thrust at full throttle from present bus voltage.
+    """
+    V = min(battery.open_circuit_voltage(), motor.max_voltage)
+    rpm_full = motor.rpm_from_voltage_throttle(V, throttle=1.0)
+    return motor.thrust_from_rpm(rpm_full)
+
+
+def estimate_CdA_from_vmax(
+    motor: MotorESC, battery: Battery, vmax_mps: float, rho: float = RHO
+) -> float:
+    """
+    Calibrate a single quadratic drag constant C_D*A from measured max speed.
+    """
+    T_full = _available_thrust_now(motor, battery)
+    vmax_mps = max(1e-6, float(vmax_mps))
+    CdA = 2.0 * T_full / (rho * vmax_mps * vmax_mps)
+    return CdA
+
+
+def make_thrust_fn_from_speed(
+    v_profile_fn: Callable[[float], float],
+    motor: MotorESC,
+    battery: Battery,
+    vmax_mps: float,
+    rho: float = RHO,
+    cap_by_available: bool = True,
+) -> Callable[[float], float]:
+    """
+    Build a thrust_fn(t) that maps desired speed -> required thrust via quadratic drag.
+    Calibrates CdA from your measured vmax at full throttle using current motor/battery.
+    Caps thrust to what's available at the current battery voltage.
+    """
+    CdA = estimate_CdA_from_vmax(motor, battery, vmax_mps=vmax_mps, rho=rho)
+
+    def thrust_fn(t: float) -> float:
+        # takes function of desired speed in m/s at certain time intervals of mission
+        v = max(0.0, float(v_profile_fn(t)))
+        T_req = 0.5 * rho * CdA * v * v
+        if cap_by_available:
+            T_cap = _available_thrust_now(motor, battery)
+            return min(T_req, T_cap)
+        return T_req
+
+    return thrust_fn
+
+
 @dataclass
 class BoatSim:
     battery: Battery
@@ -326,9 +375,9 @@ if __name__ == "__main__":
     # 12 V, 20 Ah pack
     battery = Battery(
         name="Main 12V",
-        capacity_Ah=20.0,
+        capacity_Ah=36.0,
         nominal_voltage=12.0,
-        internal_resistance_ohm=0.03,  # TODO: test internal resistance
+        internal_resistance_ohm=0.003,  # TODO: test internal resistance
         peukert_exponent=1.05,
     )
 
@@ -358,6 +407,16 @@ if __name__ == "__main__":
         else:
             return 0.0
 
+    measured_vmax_mps = 0.3
+
+    def v_profile_fn(t: float) -> float:
+        if t < 120:
+            return measured_vmax_mps * (t / 120.0)
+        elif t < 1200 or t >= 1500:
+            return measured_vmax_mps
+        else:
+            return measured_vmax_mps * (1.0 - (t - 1200.0) / 300.0)
+
     motor = MotorESC(
         name="Main Thruster",
         kv_rpm_per_V=600.0,
@@ -370,6 +429,19 @@ if __name__ == "__main__":
         max_voltage=24.0,
         thrust_fn=thrust_fn,
     )
+
+    thrust_fn = make_thrust_fn_from_speed(
+        v_profile_fn=v_profile_fn,
+        motor=motor,
+        battery=battery,
+        vmax_mps=measured_vmax_mps,
+        rho=RHO,
+        cap_by_available=True,
+    )
+
+    motor.thrust_fn = thrust_fn
+    # Set throttle function to none if using thrust_fnb
+    motor.throttle_fn = None
 
     telemetry = ConstantLoad("915MHz Telemetry Radio (Sik V3)", watts=1.2)
     gnss = ConstantLoad("GNSS Receiver (u-blox M10)", watts=0.35)
