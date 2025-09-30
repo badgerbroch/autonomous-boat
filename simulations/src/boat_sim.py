@@ -57,7 +57,7 @@ class Battery:
     name: str
     capacity_Ah: float
     nominal_voltage: float
-    internal_resistance_ohm: float = 0.02
+    internal_resistance_ohm: float = 0.003
     peukert_exponent: float = 1.05
     soc: float = 1.0
     capacity_Wh: float = field(init=False)
@@ -366,7 +366,7 @@ if __name__ == "__main__":
         prop_diameter_m=0.09,
         prop_ct=0.07,
         prop_cp=0.035,
-        rho=1000.0,
+        rho=RHO,
         max_voltage=24.0,
         thrust_fn=thrust_fn,
     )
