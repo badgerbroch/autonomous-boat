@@ -1,2 +1,6 @@
 pymavlink
 pyserial
+pandas
+folium
+branca
+numpy
